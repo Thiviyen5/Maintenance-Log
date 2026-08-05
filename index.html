@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Machine Maintenance Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#20241f;
+    --paper:#f3f1ea;
+    --card:#ffffff;
+    --slate:#22344a;
+    --slate-dk:#182636;
+    --amber:#e2963c;
+    --amber-dk:#c67c26;
+    --ok:#3f7d58;
+    --attn:#c24a3b;
+    --line:#dedad0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    padding-bottom:48px;
+  }
+  .topbar{
+    background:var(--slate-dk);
+    color:#fff;
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .topbar .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--amber);
+    flex-shrink:0;
+  }
+  .topbar span{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    font-size:15px;
+  }
+
+  .tag{
+    margin:16px 16px 0;
+    background:var(--slate);
+    color:#fff;
+    border-radius:10px;
+    padding:18px 18px 16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .tag::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;height:5px;
+    background:repeating-linear-gradient(90deg,var(--amber) 0 14px, transparent 14px 24px);
+  }
+  .tag-label{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#b9c6d4;
+    margin-bottom:2px;
+  }
+  .tag-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:30px;
+    line-height:1.05;
+    letter-spacing:.01em;
+    margin-bottom:14px;
+    word-break:break-word;
+  }
+  .tag-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px 16px;
+    border-top:1px solid rgba(255,255,255,.14);
+    padding-top:12px;
+  }
+  .tag-grid div div:first-child{
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#9fb0c0;
+    margin-bottom:2px;
+  }
+  .tag-grid div div:last-child{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:.01em;
+  }
+
+  form{margin:18px 16px 0;}
+  .section{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .section h2{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber-dk);
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .section h2::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  label.field{display:block;margin-bottom:14px;}
+  label.field:last-child{margin-bottom:0;}
+  .field-name{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  input[type=date],input[type=text],textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:16px;
+    padding:11px 12px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus,textarea:focus,button:focus-visible{
+    outline:3px solid #cfe0ee;
+    outline-offset:1px;
+    border-color:var(--slate);
+  }
+  textarea{resize:vertical;min-height:70px;}
+
+  .check-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .check-row:last-child{border-bottom:none;}
+  .check-name{font-size:14.5px;font-weight:500;}
+  .seg{
+    display:flex;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .seg button{
+    all:unset;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:600;
+    padding:8px 10px;
+    color:#666;
+    border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button[data-v="OK"].active{background:var(--ok);color:#fff;}
+  .seg button[data-v="ATTN"].active{background:var(--attn);color:#fff;}
+  .seg button[data-v="NA"].active{background:#8b8b83;color:#fff;}
+
+  .sign-pad-wrap{
+    border:1.5px dashed var(--line);
+    border-radius:8px;
+    background:#fbfaf6;
+    padding:6px;
+  }
+  canvas#pad{
+    width:100%;
+    height:150px;
+    display:block;
+    touch-action:none;
+    background:#fff;
+    border-radius:6px;
+  }
+  .pad-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:8px;
+    font-size:12px;
+    color:#777;
+  }
+  .pad-actions button{
+    all:unset;
+    cursor:pointer;
+    font-weight:600;
+    color:var(--slate);
+    font-size:12.5px;
+  }
+
+  .submit-bar{margin:0 16px;}
+  button#submitBtn{
+    all:unset;
+    display:block;
+    width:100%;
+    text-align:center;
+    background:var(--amber);
+    color:#20241f;
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:15px;
+    border-radius:9px;
+    cursor:pointer;
+  }
+  button#submitBtn:active{background:var(--amber-dk);}
+  button#submitBtn:disabled{background:#cfcabf;color:#8a8577;cursor:not-allowed;}
+
+  #statusMsg{
+    margin:12px 16px 0;
+    font-size:13.5px;
+    text-align:center;
+    padding:10px;
+    border-radius:8px;
+  }
+  #statusMsg.ok{background:#e5f0e9;color:var(--ok);}
+  #statusMsg.err{background:#f6e6e2;color:var(--attn);}
+  #statusMsg.hide{display:none;}
+
+  .config-warning{
+    margin:16px;
+    padding:12px 14px;
+    background:#fbe9d7;
+    border:1px solid #edc290;
+    border-radius:8px;
+    font-size:12.5px;
+    color:#6b4a1c;
+  }
+  .config-warning code{background:#fff;padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<div class="topbar"><span class="dot"></span><span>Maintenance Log</span></div>
+
+<div class="tag">
+  <div class="tag-label">Machine</div>
+  <div class="tag-name" id="mName">—</div>
+  <div class="tag-grid">
+    <div><div>Machine No.</div><div id="mNumber">—</div></div>
+    <div><div>Area / Location</div><div id="mArea">—</div></div>
+  </div>
+</div>
+
+<div id="configWarning" class="config-warning" style="display:none;">
+  No machine info found in this link. Open this page via the machine's QR code, or append
+  <code>?name=...&number=...&area=...</code> to the URL for testing.
+</div>
+
+<form id="logForm">
+  <div class="section">
+    <h2>Date</h2>
+    <label class="field">
+      <span class="field-name">Inspection Date</span>
+      <input type="date" id="date" required>
+    </label>
+  </div>
+
+  <div class="section">
+    <h2>Inspection Checklist</h2>
+    <div id="checklist"></div>
+  </div>
+
+  <div class="section">
+    <h2>Remarks / Parts Replacement</h2>
+    <label class="field">
+      <textarea id="remarks" placeholder="Notes, parts replaced, issues found..."></textarea>
+    </label>
+  </div>
+
+  <div class="section">
+    <h2>Serviced By</h2>
+    <label class="field">
+      <span class="field-name">Full Name</span>
+      <input type="text" id="workerName" required>
+    </label>
+    <label class="field">
+      <span class="field-name">Employee No.</span>
+      <input type="text" id="empNo" required>
+    </label>
+    <label class="field">
+      <span class="field-name">Signature</span>
+      <div class="sign-pad-wrap">
+        <canvas id="pad"></canvas>
+      </div>
+      <div class="pad-actions">
+        <span>Sign with your finger or stylus</span>
+        <button type="button" id="clearPad">Clear</button>
+      </div>
+    </label>
+  </div>
+
+  <div class="submit-bar">
+    <button type="submit" id="submitBtn">Submit Record</button>
+  </div>
+</form>
+
+<div id="statusMsg" class="hide"></div>
+
+<script>
+// ---------- CONFIG ----------
+// Replace with your Power Automate "When an HTTP request is received" trigger URL.
+const SUBMIT_ENDPOINT = "REPLACE_WITH_POWER_AUTOMATE_URL";
+
+// ---------- Machine info from QR link (?name=&number=&area=&id=) ----------
+const params = new URLSearchParams(window.location.search);
+const machine = {
+  id: params.get('id') || '',
+  name: params.get('name') || '',
+  number: params.get('number') || '',
+  area: params.get('area') || ''
+};
+if (!machine.name && !machine.number && !machine.area) {
+  document.getElementById('configWarning').style.display = 'block';
+}
+document.getElementById('mName').textContent = machine.name || 'Unknown machine';
+document.getElementById('mNumber').textContent = machine.number || '—';
+document.getElementById('mArea').textContent = machine.area || '—';
+
+// Default date to today
+document.getElementById('date').valueAsDate = new Date();
+
+// ---------- Checklist ----------
+const items = [
+  "Cleanliness","Bearing","Sensor","Control Panel",
+  "Cylinder Track / Orbit","Hydraulic Oil","Coolant","Grease","Belt"
+];
+const checklistEl = document.getElementById('checklist');
+const state = {};
+items.forEach((item, i) => {
+  const row = document.createElement('div');
+  row.className = 'check-row';
+  row.innerHTML = `
+    <span class="check-name">${item}</span>
+    <span class="seg" data-item="${item}">
+      <button type="button" data-v="OK">OK</button>
+      <button type="button" data-v="ATTN">Attention</button>
+      <button type="button" data-v="NA">N/A</button>
+    </span>`;
+  checklistEl.appendChild(row);
+});
+checklistEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-v]');
+  if (!btn) return;
+  const seg = btn.closest('.seg');
+  seg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state[seg.dataset.item] = btn.dataset.v;
+});
+
+// ---------- Signature pad ----------
+const canvas = document.getElementById('pad');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){
+  const ratio = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  ctx.scale(ratio, ratio);
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#20241f';
+}
+resizeCanvas();
+let drawing = false, hasSignature = false, lastX, lastY;
+function pos(e){
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return [t.clientX - rect.left, t.clientY - rect.top];
+}
+function start(e){ drawing = true; hasSignature = true; [lastX,lastY] = pos(e); e.preventDefault(); }
+function move(e){
+  if (!drawing) return;
+  const [x,y] = pos(e);
+  ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
+  [lastX,lastY] = [x,y];
+  e.preventDefault();
+}
+function end(){ drawing = false; }
+canvas.addEventListener('mousedown', start);
+canvas.addEventListener('mousemove', move);
+window.addEventListener('mouseup', end);
+canvas.addEventListener('touchstart', start, {passive:false});
+canvas.addEventListener('touchmove', move, {passive:false});
+canvas.addEventListener('touchend', end);
+document.getElementById('clearPad').addEventListener('click', () => {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSignature = false;
+});
+
+// ---------- Submit ----------
+const statusEl = document.getElementById('statusMsg');
+const submitBtn = document.getElementById('submitBtn');
+document.getElementById('logForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  statusEl.className = 'hide';
+
+  if (!hasSignature) {
+    statusEl.textContent = 'Please sign before submitting.';
+    statusEl.className = 'err';
+    return;
+  }
+  if (items.some(i => !state[i])) {
+    statusEl.textContent = 'Please mark every checklist item before submitting.';
+    statusEl.className = 'err';
+    return;
+  }
+  if (SUBMIT_ENDPOINT === "REPLACE_WITH_POWER_AUTOMATE_URL") {
+    statusEl.textContent = 'Form is not connected yet — set SUBMIT_ENDPOINT in the page code.';
+    statusEl.className = 'err';
+    return;
+  }
+
+  const payload = {
+    machineId: machine.id,
+    machineName: machine.name,
+    machineNumber: machine.number,
+    area: machine.area,
+    date: document.getElementById('date').value,
+    checklist: state,
+    remarks: document.getElementById('remarks').value,
+    workerName: document.getElementById('workerName').value,
+    empNo: document.getElementById('empNo').value,
+    signaturePng: canvas.toDataURL('image/png'),
+    submittedAt: new Date().toISOString()
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+  try {
+    const res = await fetch(SUBMIT_ENDPOINT, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Request failed: ' + res.status);
+    statusEl.textContent = 'Record submitted. Thank you.';
+    statusEl.className = 'ok';
+    document.getElementById('logForm').style.display = 'none';
+  } catch (err) {
+    statusEl.textContent = 'Could not submit — check your connection and try again.';
+    statusEl.className = 'err';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Record';
+  }
+});
+</script>
+
+</body>
+</html>
