@@ -254,9 +254,16 @@ document.getElementById("maintenanceForm").addEventListener("submit", async even
     return;
   }
 
-  const recordId = (crypto.randomUUID)
-    ? crypto.randomUUID()
-    : Date.now().toString();
+const now = new Date();
+
+const recordId =
+  (machine.number || "MACHINE") + "-" +
+  now.getFullYear() +
+  String(now.getMonth() + 1).padStart(2, "0") +
+  String(now.getDate()).padStart(2, "0") + "-" +
+  String(now.getHours()).padStart(2, "0") +
+  String(now.getMinutes()).padStart(2, "0") +
+  String(now.getSeconds()).padStart(2, "0");
 
   const payload = {
     recordId,
