@@ -228,6 +228,28 @@ document.getElementById("clearSignature").addEventListener("click", () => {
   signed = false;
 });
 
+  function getSignaturePng() {
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = canvas.width;
+  exportCanvas.height = canvas.height;
+
+  const exportContext = exportCanvas.getContext("2d");
+
+  // Add a solid white background.
+  exportContext.fillStyle = "#ffffff";
+  exportContext.fillRect(
+    0,
+    0,
+    exportCanvas.width,
+    exportCanvas.height
+  );
+
+  // Copy the signature onto the white background.
+  exportContext.drawImage(canvas, 0, 0);
+
+  return exportCanvas.toDataURL("image/png");
+}
+  
 document.getElementById("maintenanceForm").addEventListener("submit", async event => {
   event.preventDefault();
 
@@ -285,7 +307,7 @@ const recordId =
     remarks: document.getElementById("remarks").value.trim(),
     workerName: document.getElementById("workerName").value.trim(),
     employeeNo: document.getElementById("employeeNo").value.trim(),
-    signaturePng: canvas.toDataURL("image/png")
+    signaturePng: getSignaturePng()
   };
 
   submitBtn.disabled = true;
