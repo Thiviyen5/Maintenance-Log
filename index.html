@@ -126,8 +126,8 @@
     background:var(--line);
   }
 
-  label.field{display:block;margin-bottom:14px;}
-  label.field:last-child{margin-bottom:0;}
+  .field{display:block;margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
   .field-name{
     display:block;
     font-size:13px;
@@ -305,7 +305,7 @@
       <span class="field-name">Employee No.</span>
       <input type="text" id="empNo" required>
     </label>
-    <label class="field">
+    <div class="field">
       <span class="field-name">Signature</span>
       <div class="sign-pad-wrap">
         <canvas id="pad"></canvas>
@@ -314,7 +314,7 @@
         <span>Sign with your finger or stylus</span>
         <button type="button" id="clearPad">Clear</button>
       </div>
-    </label>
+    </div>
   </div>
 
   <div class="submit-bar">
@@ -455,12 +455,16 @@ document.getElementById('logForm').addEventListener('submit', async (e) => {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
   try {
-    const res = await fetch(SUBMIT_ENDPOINT, {
+    // mode: 'no-cors' works around Power Automate's HTTP trigger not returning
+    // browser CORS headers. This means we can't read the real response back —
+    // if fetch doesn't throw, we assume the request went out successfully.
+    // Verify actual delivery via the flow's run history or the Excel file.
+    await fetch(SUBMIT_ENDPOINT, {
       method: 'POST',
+      mode: 'no-cors',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('Request failed: ' + res.status);
     statusEl.textContent = 'Record submitted. Thank you.';
     statusEl.className = 'ok';
     document.getElementById('logForm').style.display = 'none';
