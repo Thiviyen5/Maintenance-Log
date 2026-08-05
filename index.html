@@ -323,8 +323,12 @@ const recordId =
       body: JSON.stringify(payload)
     });
 
-    status.textContent = "Request sent. Check Power Automate Run History and Excel.";
+    status.textContent = "Maintenance record submitted successfully.";
     status.className = "ok";
+
+setTimeout(() => {
+    window.location.href = "thank-you.html";
+  }, 1200);
   } catch (error) {
     console.error(error);
     status.textContent = "Submission failed. Check the internet connection.";
