@@ -327,8 +327,7 @@
 <script>
 // ---------- CONFIG ----------
 // Replace with your Power Automate "When an HTTP request is received" trigger URL.
-const SUBMIT_ENDPOINT = "https://default7f048fc12ea348e4ac9291d1eb0980.7c.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/fb41332708fa460d82cf41200180d649/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=v03n9SKCdp5BUdhP078IuySXiSOOGoBHh5OLdeQgzqg";
-
+const SUBMIT_ENDPOINT = "https://default7f048fc12ea348e4ac9291d1eb0980.7c.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/fb41332708fa460d82cf41200180d649/triggers/manual/paths/invoke?api-version=1"
 // ---------- Machine info from QR link (?name=&number=&area=&id=) ----------
 const params = new URLSearchParams(window.location.search);
 const machine = {
@@ -432,7 +431,7 @@ document.getElementById('logForm').addEventListener('submit', async (e) => {
     statusEl.className = 'err';
     return;
   }
-  if (SUBMIT_ENDPOINT === "https://default7f048fc12ea348e4ac9291d1eb0980.7c.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/fb41332708fa460d82cf41200180d649/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=v03n9SKCdp5BUdhP078IuySXiSOOGoBHh5OLdeQgzqg") {
+  if (SUBMIT_ENDPOINT === "REPLACE_WITH_POWER_AUTOMATE_URL") {
     statusEl.textContent = 'Form is not connected yet — set SUBMIT_ENDPOINT in the page code.';
     statusEl.className = 'err';
     return;
@@ -482,5 +481,4 @@ document.getElementById('logForm').addEventListener('submit', async (e) => {
 
 </body>
 </html>
-
 
